@@ -1,9 +1,25 @@
 <script setup lang="ts">
-import { shopState, itemPrice } from "../model/state";
+import { computed } from "vue";
+import { shopState, itemPrice, quoteRepair } from "../model/state";
 import { quoteMessage } from "../lib/pricing";
 import { cards } from "@/shared/cards";
+import { deckState } from "@/features/deck";
+import { wearStage, WEAR_BROKEN } from "@/shared/wear";
 defineProps<{ gold: number }>();
-defineEmits<{ buy: [id: string]; leave: [] }>();
+defineEmits<{ buy: [id: string]; repair: [id: string]; leave: [] }>();
+const repairTargets = computed(() =>
+  deckState.cards
+    .filter((c) => c.wear > 0)
+    .map((c) => ({
+      id: c.id,
+      name: cards[c.key]?.name ?? c.key,
+      wear: c.wear,
+      stage: wearStage(c.wear),
+      quote: quoteRepair(c.id, (id) =>
+        deckState.cards.find((x) => x.id === id)?.wear ?? 0,
+      ),
+    })),
+);
 </script>
 <template>
   <section class="panel">
@@ -32,6 +48,32 @@ defineEmits<{ buy: [id: string]; leave: [] }>();
             @click="$emit('buy', item.id)"
           >
             {{ item.sold ? "已售出" : itemPrice(item.id) + " 金 · 购买" }}
+          </button>
+        </div>
+      </div>
+      <div class="repair-shop">
+        <h3>铁匠整备 · 付费修复</h3>
+        <p class="muted">
+          按当前磨损计价并完全修复；取消选择不会收费，金币不足无法成交。
+        </p>
+        <p v-if="!repairTargets.length" class="muted">
+          你的卡牌都还完好，暂不需要整备。
+        </p>
+        <div v-for="t in repairTargets" :key="t.id" class="stock">
+          <div>
+            <b>{{ t.name }}</b
+            ><small
+              >磨损 {{ t.wear }}/{{ WEAR_BROKEN }}（{{
+                t.stage === "broken" ? "完全破损" : "受损"
+              }}）· 完全修复</small
+            >
+          </div>
+          <button
+            :disabled="!t.quote || gold < t.quote.price"
+            :data-repair="t.id"
+            @click="$emit('repair', t.id)"
+          >
+            {{ t.quote ? t.quote.price + " 金 · 修复" : "不可修复" }}
           </button>
         </div>
       </div>

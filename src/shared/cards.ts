@@ -75,6 +75,15 @@ export const cards: Record<string, CardSpec> = {
       { type: "heal", amount: 3, target: "hero" },
     ],
   },
+  echo: {
+    key: "echo",
+    name: "余烬回响",
+    cost: 0,
+    kind: "skill",
+    text: "回响手中一张牌，生成一张本场可用的临时复制（其磨损不传回原卡）。",
+    rarity: "rare",
+    effects: [{ type: "copy", amount: 1, target: "hero" }],
+  },
 };
 export function cardLabel(key: string) {
   return cards[key]?.name ?? key;

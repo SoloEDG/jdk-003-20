@@ -101,6 +101,7 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
             v-else-if="session.tab === 'shop'"
             :gold="deckState.hero.gold"
             @buy="commands.buy"
+            @repair="commands.repair"
             @leave="commands.leaveShop"
           /><DeckPanel
             v-else

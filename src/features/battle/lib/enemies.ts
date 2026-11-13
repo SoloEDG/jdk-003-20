@@ -28,7 +28,12 @@ export function spawnEnemy(c: JourneyContext): Enemy {
     pattern: boss ? [1.5, 0.7, 1.2] : [1, 0.7, 1.3],
   };
 }
+/** 弱回合（倍率 0.7）敌人不攻击，改为耗尽玩家的一张牌，使其积累磨损。 */
+export function isDrainTurn(enemy: Enemy, turn: number) {
+  return enemy.pattern[(turn - 1) % enemy.pattern.length]! < 1;
+}
 export function enemyIntent(enemy: Enemy, turn: number) {
+  if (isDrainTurn(enemy, turn)) return 0;
   return (
     Math.floor(
       enemy.attack * enemy.pattern[(turn - 1) % enemy.pattern.length]!,

@@ -4,8 +4,10 @@ export {
   openShop,
   preparePurchase,
   completePurchase,
+  quoteRepair,
   closeShop,
   exportShop,
   restoreShop,
   resetShop,
 } from "./model/state";
+export type { RepairQuote } from "./model/state";

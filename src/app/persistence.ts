@@ -7,7 +7,7 @@ import { exportSession, restoreSession } from "./session";
 const KEY = "ember-path-v1";
 function snapshot() {
   return {
-    version: 1,
+    version: 2,
     route: exportRoute(),
     battle: exportBattle(),
     deck: exportDeck(),
@@ -29,8 +29,9 @@ export function load() {
   if (!raw) return false;
   try {
     const d = JSON.parse(raw);
+    // 兼容 v1 旧存档：结构相同，仅卡牌缺少磨损字段，由 restoreDeck 补默认值。
     if (
-      d.version !== 1 ||
+    (d.version !== 1 && d.version !== 2) ||
       !Array.isArray(d.deck?.cards) ||
       !Array.isArray(d.route?.visited) ||
       !d.battle?.piles ||

@@ -5,7 +5,10 @@ export {
   playCard,
   endTurn,
   currentIntent,
+  drainIntent,
+  collectWearDeltas,
   exportBattle,
   restoreBattle,
   resetBattle,
 } from "./model/state";
+export type { WearDelta } from "./model/state";

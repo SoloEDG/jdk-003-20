@@ -640,6 +640,147 @@ details {
 .stock button {
   font-size: 11px;
 }
+/* 卡牌磨损 */
+.wear-alert {
+  background: #3d2620;
+  border: 1px solid #8a5140;
+  color: #e0b09c;
+  padding: 14px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+.wear-line {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 10px;
+}
+.wear-line i {
+  width: 12px;
+  height: 5px;
+  background: #3a4433;
+  border-radius: 2px;
+  display: inline-block;
+}
+.wear-line i.on {
+  background: #c08a4e;
+}
+.wear-line em {
+  position: static;
+  font-style: normal;
+  font-size: 9px;
+  margin-left: 6px;
+  color: #b59a6a;
+}
+.wear-line em[data-stage="worn"] {
+  color: #d3a85f;
+}
+.wear-line em[data-stage="broken"] {
+  color: #d97a5f;
+}
+.deck-list button.worn {
+  border-color: #8a6f3e;
+}
+.deck-list button.broken {
+  border-color: #8a4a3a;
+  background: #2c201c;
+}
+.wear-source {
+  color: #b08d63 !important;
+}
+.wear-effect {
+  color: #d3a85f !important;
+}
+.repair-preview {
+  text-align: left;
+  font-size: 11px;
+}
+.repair-preview b {
+  display: block;
+  margin-bottom: 6px;
+}
+.repair-preview ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #b7c2a4;
+  line-height: 1.9;
+}
+.playing-card.worn {
+  border-color: #a8843f;
+}
+.playing-card.broken {
+  border-color: #a4563f;
+  opacity: 0.85;
+}
+.playing-card.temp {
+  box-shadow: inset 0 0 0 1px #6f8fb0;
+}
+.temp-tag {
+  font-style: normal;
+  font-size: 9px;
+  color: #9fc0dd;
+  border: 1px solid #5d7d9c;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.card-wear {
+  color: #c99a5b !important;
+  display: block;
+  margin-top: 6px;
+}
+.drain-hint {
+  color: #d3a85f;
+  font-size: 11px;
+  margin: 8px 0 0;
+}
+.intent.draining {
+  color: #d3a85f;
+}
+.settle-wear {
+  font-size: 11px;
+  color: #acb89d;
+  margin: 10px 0;
+}
+.repair-offer {
+  border: 1px solid #6e5d39;
+  background: #2a2618;
+  border-radius: 5px;
+  padding: 16px;
+  margin-top: 18px;
+}
+.repair-offer h3 {
+  font-size: 13px;
+  margin: 0 0 10px;
+  color: #e0c98f;
+}
+.repair-targets {
+  display: grid;
+  gap: 8px;
+}
+.repair-targets button {
+  text-align: left;
+  padding: 12px 14px;
+}
+.repair-targets b {
+  color: #d6dea5;
+}
+.repair-targets small {
+  display: block;
+  color: #c9a86a;
+  margin-top: 6px;
+}
+.repair-shop {
+  border-top: 1px solid #3d4c32;
+  margin-top: 22px;
+  padding-top: 16px;
+}
+.repair-shop h3 {
+  font-size: 14px;
+  color: #e0c98f;
+}
 footer {
   display: flex;
   justify-content: space-between;

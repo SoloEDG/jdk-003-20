@@ -7,14 +7,14 @@ export function rewardPool(context: JourneyContext) {
     context.kind === "boss";
   const pool =
     context.region === "forest"
-      ? ["venom", "shelter", "guard", "focus"]
+      ? ["venom", "shelter", "guard", "focus", "echo"]
       : context.region === "forge"
-        ? ["strike", "guard", "burst", "fury"]
-        : ["venom", "burst", "focus", "fury"];
+        ? ["strike", "guard", "burst", "fury", "echo"]
+        : ["venom", "burst", "focus", "fury", "echo"];
   return shuffle(
     rare
       ? pool
-      : [...pool.filter((k) => !["burst", "fury"].includes(k)), "strike"],
+      : [...pool.filter((k) => !["burst", "fury", "echo"].includes(k)), "strike"],
     hash(context.nodeId),
   ).slice(0, 3);
 }

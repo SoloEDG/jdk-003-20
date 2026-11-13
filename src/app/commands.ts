@@ -4,6 +4,7 @@ import {
   beginBattle,
   playCard,
   endTurn,
+  collectWearDeltas,
   resetBattle,
 } from "@/features/battle";
 import {
@@ -16,15 +17,24 @@ import {
   heal,
   upgradeCard,
   removeCard,
+  applyBattleWear,
+  campRepair,
+  payRepair,
+  grantRepair,
   openCamp,
   useCamp,
   resetDeck,
 } from "@/features/deck";
-import { openReward, claimReward, resetReward } from "@/features/reward";
+import {
+  openReward,
+  claimReward,
+  resetReward,
+} from "@/features/reward";
 import {
   openShop,
   preparePurchase,
   completePurchase,
+  quoteRepair,
   closeShop,
   resetShop,
 } from "@/features/shop";
@@ -68,27 +78,43 @@ export function turn() {
   endTurn();
   persist();
 }
+
+/** 战斗结算：无论胜负都把本场磨损一次写回永久实例（幂等，重复结算不重复扣）。 */
+function settleWearOnce() {
+  const r = battleState.result;
+  if (!r) return [];
+  const deltas = collectWearDeltas();
+  const touched = applyBattleWear(r.id, deltas);
+  if (touched.length)
+    notify(`本场磨损已写回 ${touched.length} 张卡牌，破损情况可在牌组页查看。`);
+  return touched;
+}
+
 export function settle() {
   const r = battleState.result;
   if (!r) return;
+  settleWearOnce();
   if (!r.won) {
     setHp(r.hp);
     finishRun();
-    notify("这次旅途已经结束。重新启程可保留你的经验。");
+    notify("这次旅途已经结束。卡牌磨损已保留，重新启程可整备后再战。");
     persist();
     return;
   }
   if (openReward(JSON.parse(JSON.stringify(r)))) {
     setHp(r.hp);
     switchTab("reward");
-    notify("胜利！选择一张牌或跳过卡牌，金币都会结算。");
+    notify("胜利！可选择新牌，也可用修复权益代替新牌。");
   }
   persist();
 }
 export function claim(skip: boolean) {
-  const grant = claimReward(skip);
+  const wornIds = deckState.cards.filter((c) => c.wear > 0).map((c) => c.id);
+  const grant = claimReward(skip, wornIds);
   if (!grant) return;
   if (grant.card) addCard(grant.card);
+  // 修复权益只在领取时应用一次；已经修好的牌无法再次成为目标，不会重新变坏。
+  if (grant.repair) grantRepair(grant.repair.cardId, grant.repair.amount);
   earnGold(grant.gold);
   heal(grant.heal);
   resolveRoute();
@@ -113,21 +139,58 @@ export function buy(id: string) {
   notify("交易完成，卡牌已收入牌组。");
   persist();
 }
+
+/** 商店付费修复：先报价、再扣款，任何一步失败都不收费，取消则完全不扣费。 */
+export function repair(id: string) {
+  const wearOf = (cardId: string) =>
+    deckState.cards.find((c) => c.id === cardId)?.wear ?? 0;
+  const quote = quoteRepair(id, wearOf);
+  if (!quote) {
+    notify("无法修复：目标不存在或已经完好。");
+    return;
+  }
+  if (!spendGold(quote.price)) {
+    notify("无法修复：金币不足。");
+    return;
+  }
+  const repaired = payRepair(quote.cardId, Number.POSITIVE_INFINITY);
+  if (repaired <= 0) {
+    earnGold(quote.price);
+    notify("修复未生效，已退还金币。");
+    return;
+  }
+  notify(`花费 ${quote.price} 金修复了 ${repaired} 点磨损。`);
+  persist();
+}
+
 export function leaveShop() {
   closeShop();
   resolveRoute();
   switchTab("route");
   persist();
 }
-export function camp(action: "rest" | "upgrade") {
-  if (
-    !session.context ||
-    session.context.kind !== "camp" ||
-    !useCamp(action, session.context.influence.heat)
-  )
-    return;
+export function camp(action: "rest" | "upgrade" | "repair") {
+  if (!session.context || session.context.kind !== "camp") return;
+  // 修复需要选中一张真实存在且有磨损的牌；校验失败不消耗休息机会。
+  if (action === "repair") {
+    const target = deckState.cards.find((c) => c.id === deckState.selected);
+    if (!target || target.wear <= 0) {
+      notify("无法修复：请先在牌组中选择一张仍有磨损的牌。");
+      return;
+    }
+  }
+  if (!useCamp(action, session.context.influence.heat)) return;
+  if (action === "repair") {
+    const repaired = campRepair(deckState.selected);
+    notify(
+      repaired > 0
+        ? `你牺牲这次休息修复了 ${repaired} 点磨损。`
+        : "修复未生效，篝火没有被消耗。",
+    );
+  } else {
+    notify("篝火逐渐熄灭，你准备好继续上路。");
+  }
   resolveRoute();
-  notify("篝火逐渐熄灭，你准备好继续上路。");
   persist();
 }
 export function upgrade(id: string) {

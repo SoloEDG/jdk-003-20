@@ -1,5 +1,10 @@
 import type { CardInstance } from "@/shared/domain";
 import { uid } from "@/shared/random";
+
+function makeCard(key: string): CardInstance {
+  return { id: uid("card"), key, upgraded: false, wear: 0, wearLog: [] };
+}
+
 export function starter(): CardInstance[] {
   return [
     "strike",
@@ -10,10 +15,10 @@ export function starter(): CardInstance[] {
     "venom",
     "focus",
     "shelter",
-  ].map((key) => ({ id: uid("card"), key, upgraded: false }));
+  ].map(makeCard);
 }
 export function createCard(key: string): CardInstance {
-  return { id: uid("card"), key, upgraded: false };
+  return makeCard(key);
 }
 export function canRemove(size: number) {
   return size > 5;

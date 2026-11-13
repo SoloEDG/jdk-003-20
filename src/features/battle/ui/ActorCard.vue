@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import type { Actor } from "@/shared/domain";
-defineProps<{ actor: Actor; name: string; enemy?: boolean; intent?: number }>();
+defineProps<{
+  actor: Actor;
+  name: string;
+  enemy?: boolean;
+  intent?: number;
+  drain?: boolean;
+}>();
 </script>
 <template>
   <div class="actor" :class="{ enemy }">
@@ -18,6 +24,8 @@ defineProps<{ actor: Actor; name: string; enemy?: boolean; intent?: number }>();
       ><span v-if="actor.poison">中毒 {{ actor.poison }}</span
       ><span v-if="actor.thorns">荆棘 {{ actor.thorns }}</span>
     </div>
-    <strong v-if="enemy" class="intent">下次攻击 {{ intent }}</strong>
+    <strong v-if="enemy" class="intent" :class="{ draining: drain }">
+      {{ drain ? "下次行动 · 耗尽你的一张牌" : `下次攻击 ${intent}` }}
+    </strong>
   </div>
 </template>
